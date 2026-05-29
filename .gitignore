@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+dist/
+build/
+*.spec
+bundled_main.py
+*.egg-info/
+cache/
+orb_v2_settings.json
+fyers_credentials.json
+*.log
+.DS_Store
