@@ -1,0 +1,57 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.2
+
+    - name: Set up Python
+      uses: actions/setup-python@v5.4.0
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Bundle files
+      run: python bundler.py
+
+    - name: Build EXE
+      run: >
+        pyinstaller
+        --onefile
+        --windowed
+        --name ORBStrategyV2
+        --hidden-import customtkinter
+        --hidden-import fyers_apiv3
+        --hidden-import fyers_apiv3.FyersWebsocket
+        --hidden-import fyers_apiv3.FyersWebsocket.data_ws
+        --hidden-import fyers_apiv3.FyersWebsocket.order_ws
+        --hidden-import pyotp
+        --hidden-import pytz
+        --hidden-import certifi
+        --hidden-import pandas
+        --collect-all customtkinter
+        --collect-all fyers_apiv3
+        bundled_main.py
+
+    - name: Upload EXE artifact
+      uses: actions/upload-artifact@v4.6.2
+      with:
+        name: ORBStrategyV2-Windows-EXE
+        path: dist/ORBStrategyV2.exe
+        retention-days: 30
